@@ -1,6 +1,9 @@
 #goal definition
 string object_name
 
+#OpenRAVE env model
+string or_env_model
+
 #gripper used on the robot
 string gripper_type
 

@@ -14,13 +14,15 @@ def show_grasps_client():
     object_name = "yellowsaltcube"
     grasp_id = 0
 
-    gripper_type = "sdh"
+    # or_env_model = "cob3"  # cob3 collada model with sdh
+    or_env_model = "sdh"   # sdh collada model generated from sdh urdf
+    gripper_type = "sdh"   # name of manipulator in collada model
 
     while not rospy.is_shutdown():
         print grasp_id
 
         # Set the goal here: object_name, grasp_id, sort-by-quality
-        goal = cob_grasp_generation.msg.ShowGraspsGoal(object_name, gripper_type, grasp_id, True)
+        goal = cob_grasp_generation.msg.ShowGraspsGoal(object_name, or_env_model, gripper_type, grasp_id, True)
 
         client.send_goal(goal)
         client.wait_for_result()

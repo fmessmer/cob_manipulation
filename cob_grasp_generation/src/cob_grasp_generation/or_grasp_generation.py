@@ -20,10 +20,10 @@ class ORGraspGeneration:
 		self.target = None
 		self.grasp_list = None
 
-	def setup_environment(self, object_name, gripper_type, viewer=False):
+	def setup_environment(self, object_name, or_env_model, viewer=False):
 		if self.env == None:
 			self.env = Environment()
-			self.env.Load(roslib.packages.get_pkg_dir('cob_grasp_generation')+'/files/env/'+str(gripper_type)+'.env.xml')
+			self.env.Load(roslib.packages.get_pkg_dir('cob_grasp_generation')+'/files/env/'+str(or_env_model)+'.env.xml')
 
 		if viewer:
 			if self.env.GetViewer() == None:
@@ -323,8 +323,8 @@ class ORGraspGeneration:
 		#check for grasp_id and return
 		if grasp_id > 0:
 			if grasp_id < len(self.grasp_list):
-				#print self._fill_grasp_msg(self.grasp_list[grasp_id])
-				return [self._fill_grasp_msg(self.grasp_list[grasp_id])]
+				#print self._fill_grasp_msg(gripper_type, self.grasp_list[grasp_id])
+				return [self._fill_grasp_msg(gripper_type, self.grasp_list[grasp_id])]
 			else:
 				print "Grasp not available"
 				return []
@@ -342,9 +342,9 @@ class ORGraspGeneration:
 		selected_grasp_list = []
 		for i in range(0,max_grasps):
 			if threshold > 0 and float(sorted_list[i]['eps_l1']) >= threshold:
-				selected_grasp_list.append(self._fill_grasp_msg(sorted_list[i]))
+				selected_grasp_list.append(self._fill_grasp_msg(gripper_type, sorted_list[i]))
 			elif threshold == 0:
-				selected_grasp_list.append(self._fill_grasp_msg(sorted_list[i]))
+				selected_grasp_list.append(self._fill_grasp_msg(gripper_type, sorted_list[i]))
 			else:
 				pass
 
@@ -352,14 +352,20 @@ class ORGraspGeneration:
 		return selected_grasp_list
 
 	#fill the grasp message of ROS
-	def _fill_grasp_msg(self, grasp):
+	def _fill_grasp_msg(self, gripper_type, grasp):
 
 		#grasp posture
 		joint_config = JointTrajectory()
 		#joint_config.header.stamp = rospy.Time.now()
 		#joint_config.header.frame_id = ""
-		#joint_config.joint_names = ['sdh_knuckle_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint']
-		joint_config.joint_names = ['gripper_left_finger_1_joint', 'gripper_left_finger_2_joint']
+		if gripper_type == "sdh":
+			joint_config.joint_names = ['sdh_knuckle_joint', 'sdh_finger_12_joint', 'sdh_finger_13_joint', 'sdh_finger_22_joint', 'sdh_finger_23_joint', 'sdh_thumb_2_joint', 'sdh_thumb_3_joint']
+		elif gripper_type == "sdhx":
+			joint_config.joint_names = ['gripper_left_finger_1_joint', 'gripper_left_finger_2_joint']
+		else:
+			rospy.logerr("Gripper not supported")
+			return Grasp()
+
 		#print "Optimize grasp_configuration"
 		point = JointTrajectoryPoint()
 		for joint_name in joint_config.joint_names:
@@ -416,8 +422,8 @@ class ORGraspGeneration:
 
 		return grasp_out
 
-	def show_grasp(self, object_name, gripper_type, grasp_id, sort_by_quality=False):
-		self.setup_environment(object_name, gripper_type, viewer=True)
+	def show_grasp(self, object_name, or_env_model, gripper_type, grasp_id, sort_by_quality=False):
+		self.setup_environment(object_name, or_env_model, viewer=True)
 
 		self.get_grasp_list(object_name, gripper_type, sort_by_quality)
 

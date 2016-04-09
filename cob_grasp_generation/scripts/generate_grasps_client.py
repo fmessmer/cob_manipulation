@@ -16,7 +16,8 @@ def generate_grasps_client():
     #goal.object_name="instanttomatosoup"
     goal.object_name="cokeplasticsmall"
 
-    goal.gripper_type = "sdh"
+    goal.or_env_model = "cob3"  # cob3 collada model with sdh
+    goal.gripper_type = "sdh"   # name of manipulator in collada model
 
     #ToDo: set the other OpenRAVE parameters for grasp_generation
     goal.viewer = True
